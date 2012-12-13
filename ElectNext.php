@@ -40,7 +40,7 @@ class ElectNext {
     ?>
 
 
-    <script src="https://electnext.dev/api/v1/info_widget.js"></script>
+    <script async src="https://electnext.dev/api/v1/info_widget.js"></script>
 
     <script>
       jQuery(document).ready(function($) {
