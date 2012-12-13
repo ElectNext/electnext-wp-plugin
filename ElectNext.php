@@ -53,7 +53,12 @@ class ElectNext {
           ev.preventDefault();
           var content = tinyMCE.get('content').getContent().replace(/(<([^>]+)>)/ig,"");
           var possibles = ElectNext.scan_string(content);
-          ElectNext.search_candidates(possibles)
+          ElectNext.search_candidates(possibles, function(data) {
+            console.log(data);
+            $.each(data, function(idx, el) {
+              //add the politicians to page
+            })
+          });
         });
       });
 
@@ -83,8 +88,8 @@ class ElectNext {
     if (!current_user_can('edit_post')) return;
 
     // working here
-    $pols = array_map('esc_attr', $_POST['electnext_pol']);
-    update_post_meta($post_id, 'electnext_pols', $pols);
+    //$pols = array_map('esc_attr', $_POST['electnext_pol']);
+    //update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
   public function render_exception_message($e) {
