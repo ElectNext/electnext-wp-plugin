@@ -38,29 +38,33 @@ class ElectNext {
     $pols = empty($meta_pols) ? array() : $meta_pols;
     wp_nonce_field('electnext_meta_box_nonce', 'electnext_meta_box_nonce');
     ?>
-      <div style="float: left;">
-      <p>Temporary inputs to test saving</p>
-      <p>
-        <label for="electnext_pol_name">Politician Name</label>
-        <input type="text" name="electnext_pol_name" id="electnext_pol_name" />
-      </p>
-      <p>
-        <label for="electnext_pol_id">Politician ID</label>
-        <input type="text" name="electnext_pol_id" id="electnext_pol_id" />
-      </p>
-      </div>
-      <div style="float: left; margin-left: 30px;">
-        <?php
-          if (!empty($pols)) {
-            echo '<ul>';
-            foreach ($pols as $pol) {
-              echo "<li>ID: {$pol['id']} Name: {$pol['name']}</li>";
-            }
-            echo '</ul>';
-          }
-        ?>
-      </div>
-      <div class="clear"></div>
+
+
+    <!-- script src="https://www.electnext.com/something" -->
+
+    <script>
+      jQuery(document).ready(function($) {
+        $('#electnext_add_pol').click(function(e) {
+          $('<p><label for="electnext_pol[][id]">ID:</label> <input type="text" name="electnext_pol[][id]"> <label for="electnext_pol[][name]">Name:</label> <input type="text" name="electnext_pol[][name]"></p>').appendTo(electnext_pols);
+          e.preventDefault();
+        });
+      });
+    </script>
+    <div id="electnext_pols">
+      <?php
+      if (!empty($pols)) {
+        echo '<ul>';
+        for ($i=0; $i < count($pols); ++$i)  {
+          echo "<li>ID: <input type='text' name='electnext_pol[$i][id]' value='{$pols[$i]['id']}'> ";
+          echo "Name: <input type='text' name='electnext_pol[$i][name]' value='{$pols[$i]['name']}'></li>";
+        }
+        echo '</ul>';
+      }
+      ?>
+
+      <p><a href="#" id="electnext_add_pol">Add another</a></p>
+      <p><a class="button" href="#">Scan post</a></p>
+    </div>
     <?php
   }
 
@@ -69,33 +73,8 @@ class ElectNext {
     if (!isset( $_POST['electnext_meta_box_nonce']) || !wp_verify_nonce($_POST['electnext_meta_box_nonce'], 'electnext_meta_box_nonce')) return;
     if (!current_user_can('edit_post')) return;
 
-    // if this is a draft, we want to get the meta from
-    // the parent published post
-    if ($parent_id = wp_is_post_revision($post_id)) {
-      $meta_pols = get_post_meta($parent_id, 'electnext_pols', true);
-    }
-
-    else {
-      $meta_pols = get_post_meta($post_id, 'electnext_pols', true);
-    }
-
-    $pols = empty($meta_pols) ? array() : $meta_pols;
-    $existing = false;
-
-    if (isset($_POST['electnext_pol_name']) && isset($_POST['electnext_pol_id'])) {
-      for ($i=0; $i < count($pols); ++$i) {
-        if ($pols[$i]['id'] == $_POST['electnext_pol_id']) {
-          $pols[$i]['name'] = esc_attr($_POST['electnext_pol_name']);
-          $existing = true;
-          break;
-        }
-      }
-    }
-
-    if ($existing === false) {
-      $pols[] = array('name' => esc_attr($_POST['electnext_pol_name']), 'id' => esc_attr($_POST['electnext_pol_id']));
-    }
-
+    // working here
+    $pols = array_map('esc_attr', $_POST['electnext_pol']);
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
