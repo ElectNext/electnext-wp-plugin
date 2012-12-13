@@ -69,11 +69,16 @@ class ElectNext {
     if (!isset( $_POST['electnext_meta_box_nonce']) || !wp_verify_nonce($_POST['electnext_meta_box_nonce'], 'electnext_meta_box_nonce')) return;
     if (!current_user_can('edit_post')) return;
 
+    // if this is a draft, we want to get the meta from
+    // the parent published post
     if ($parent_id = wp_is_post_revision($post_id)) {
-      $post_id = $parent_id;
+      $meta_pols = get_post_meta($parent_id, 'electnext_pols', true);
     }
 
-    $meta_pols = get_post_meta($post_id, 'electnext_pols', true);
+    else {
+      $meta_pols = get_post_meta($post_id, 'electnext_pols', true);
+    }
+
     $pols = empty($meta_pols) ? array() : $meta_pols;
     $existing = false;
 
