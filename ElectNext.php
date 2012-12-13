@@ -40,15 +40,23 @@ class ElectNext {
     ?>
 
 
-    <!-- script src="https://www.electnext.com/something" -->
+    <script src="https://electnext.dev/api/v1/info_widget.js"></script>
 
     <script>
       jQuery(document).ready(function($) {
-        $('#electnext_add_pol').click(function(e) {
+        $('#electnext_add_pol').click(function(ev) {
           $('<p><label for="electnext_pol[][id]">ID:</label> <input type="text" name="electnext_pol[][id]"> <label for="electnext_pol[][name]">Name:</label> <input type="text" name="electnext_pol[][name]"></p>').appendTo(electnext_pols);
-          e.preventDefault();
+          ev.preventDefault();
+        });
+
+        $('#electnext_scan_btn').on('click', function(ev) {
+          ev.preventDefault();
+          var content = tinyMCE.get('content').getContent().replace(/(<([^>]+)>)/ig,"");
+          var possibles = ElectNext.scan_string(content);
+          ElectNext.search_candidates(possibles)
         });
       });
+
     </script>
     <div id="electnext_pols">
       <?php
@@ -63,7 +71,8 @@ class ElectNext {
       ?>
 
       <p><a href="#" id="electnext_add_pol">Add another</a></p>
-      <p><a class="button" href="#">Scan post</a></p>
+      <p><a class="button" href="#" id="electnext_scan_btn">Scan post</a></p>
+      <div id="electnext-results"></div>
     </div>
     <?php
   }
