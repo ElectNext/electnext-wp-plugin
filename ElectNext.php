@@ -26,6 +26,7 @@ class ElectNext {
   public function run() {
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
+    add_action('admin_enqueue_scripts', array($this, 'add_jquery_ui_sortable'));
     return true;
   }
 
@@ -56,18 +57,27 @@ class ElectNext {
           var possibles = ElectNext.scan_string(content);
           ElectNext.search_candidates(possibles, function(data) {
             $.each(data, function(idx, el) {
+              $('#electnext-pols p em').empty();
               if (!$('#electnext-pol-id-' + el.id).length) {
                 $('#electnext-pols ul').append(
                   '<li class="electnext-pol" id="electnext-pol-id-' + el.id + '">'
-                    + '<strong>' + el.name + '</strong> - '
-                    + '<span>' + el.title + '</span>'
+                    + '<strong>' + el.name + '</strong>'
+                    + (el.title ? (' - <span>' + el.title + '</span>') : '')
                     + '<i style="display:none;">' + el.id + '</i>'
                     + ' [ <a href="#" class="electnext-pol-remove">x</a> ]</li>'
                 );
               }
             })
+
+            if (data.length == 0) {
+              $('#electnext-pols p em').text('No names found');
+            }
           });
         });
+
+
+        // th
+        $('#electnext-pols ul').sortable();
 
         // remove requested names
         $('#electnext-pols ul').on('click', '.electnext-pol-remove', function(ev) {
@@ -107,8 +117,8 @@ class ElectNext {
         if (!empty($pols)) {
           for ($i=0; $i < count($pols); ++$i)  {
             echo "<li class='electnext-pol' id='electnext-pol-id-{$pols[$i]['id']}'>"
-              . "<strong>{$pols[$i]['name']}</strong> - "
-              . "<span>{$pols[$i]['title']}</span>"
+              . "<strong>{$pols[$i]['name']}</strong>"
+              . (strlen($pols[$i]['title']) ? " - <span>{$pols[$i]['title']}</span>" : "")
               . "<i style='display:none;'>{$pols[$i]['id']}</i>"
               . " [ <a href='#' class='electnext-pol-remove'>x</a> ]</li>";
           }
@@ -116,7 +126,7 @@ class ElectNext {
       ?>
       </ul>
 
-      <p><a class="button" href="#" id="electnext-scan-btn">Scan post</a></p>
+      <p><a class="button" href="#" id="electnext-scan-btn">Scan post</a> <em></em></p>
       <div class="clear"></div>
     </div>
     <?php
@@ -129,6 +139,14 @@ class ElectNext {
 
     $pols = $this->utils->array_map_recursive('sanitize_text_field', $_POST['electnext_pols_meta']);
     update_post_meta($post_id, 'electnext_pols', $pols);
+  }
+
+  function add_jquery_ui_sortable($hook) {
+    // jquery-ui-sortable is automatically included in the post editor in WP 3.5
+    // but we don't want to assume it always will be in future versions, so enqueue it
+    if ($hook == 'post-new.php' || $hook == 'post.php') {
+      wp_enqueue_script('jquery-ui-sortable');
+    }
   }
 
   public function render_exception_message($e) {
