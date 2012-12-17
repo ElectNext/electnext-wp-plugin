@@ -62,11 +62,17 @@ class ElectNext {
                     + '<strong>' + el.name + '</strong> - '
                     + '<span>' + el.title + '</span>'
                     + '<i style="display:none;">' + el.id + '</i>'
-                    + '</li>'
+                    + ' [ <a href="#" class="electnext-pol-remove">x</a> ]</li>'
                 );
               }
             })
           });
+        });
+
+        // remove requested names
+        $('#electnext-pols ul').on('click', '.electnext-pol-remove', function(ev) {
+          ev.preventDefault();
+          $(this).parent().remove();
         });
 
         // save the final set of names when the post is saved
@@ -104,7 +110,7 @@ class ElectNext {
               . "<strong>{$pols[$i]['name']}</strong> - "
               . "<span>{$pols[$i]['title']}</span>"
               . "<i style='display:none;'>{$pols[$i]['id']}</i>"
-              . "</li>";
+              . " [ <a href='#' class='electnext-pol-remove'>x</a> ]</li>";
           }
         }
       ?>
