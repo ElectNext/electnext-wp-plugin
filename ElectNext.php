@@ -203,12 +203,25 @@ class ElectNext {
 
       if (strlen($pols_string)) {
         $new_content = "
-          <script async src='{$this->site_url}/api/v1/info_widget.js'></script>
-          <div id='electnext-widgets'><a href='#' id='electnext-test'>Click me</a></div>
-          <script>
+          <script data-electnext id='electnext-setup'>
+            (function() {
+              var script = document.createElement('script');
+              script.type = 'text/javascript';
+              script.async = true;
+              script.src = 'https://electnext.dev/api/v1/info_widget.js';
+
+              var entry = document.getElementById('electnext-setup');
+              entry.parentNode.insertBefore(script, entry);
+            })();
+
             jQuery(document).ready(function($) {
-              $('#electnext-test').on('click', function(ev) {
-                ev.preventDefault();
+              electnext_fetch_candidates();
+
+              function electnext_fetch_candidates() {
+                if (typeof ElectNext == 'undefined' || ElectNext.ready() != true) {
+                  setTimeout(electnext_fetch_candidates, 1000);
+                  return;
+                }
 
                 ElectNext.fetch_candidates('$pols_string', function(data) {
                   if (data.length == 0) {
@@ -219,9 +232,10 @@ class ElectNext {
                     $('#electnext-widgets').html(data.content);
                   }
                 });
-              });
+              }
             });
           </script>
+          <div id='electnext-widgets'></div>
         ";
 
         $content .= $new_content;
