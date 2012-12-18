@@ -27,7 +27,9 @@ class ElectNext {
   public function run() {
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
-    add_action('admin_enqueue_scripts', array($this, 'add_jquery_ui_sortable'));
+    add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
+    add_action('wp_enqueue_scripts', array($this, 'add_front_end_scripts'));
+    add_filter('the_content', array($this, 'add_info_boxes'));
     return true;
   }
 
@@ -171,12 +173,61 @@ class ElectNext {
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
-  public function add_jquery_ui_sortable($hook) {
+  public function add_admin_scripts($hook) {
     // jquery-ui-sortable is automatically included in the post editor in WP 3.5
     // but we don't want to assume it always will be in future versions, so enqueue it
     if ($hook == 'post-new.php' || $hook == 'post.php') {
       wp_enqueue_script('jquery-ui-sortable');
     }
+  }
+
+  public function add_front_end_scripts() {
+    wp_enqueue_script('jquery');
+  }
+
+  public function add_info_boxes($content) {
+    global $post;
+    // the is_main_query() check ensures we don't add to sidebars, footers, etc
+    // we could also add an is_single() check if we only want them on single post pages
+    if (is_main_query()) {
+      $pols = get_post_meta($post->ID, 'electnext_pols', true);
+      $pols_string = '';
+
+      if (is_array($pols)) {
+        foreach ($pols as $pol) {
+          $pols_string .= "ids[]={$pol['id']}&";
+        }
+
+        $pols_string = substr($pols_string, 0, -1);
+      }
+
+      if (strlen($pols_string)) {
+        $new_content = "
+          <script async src='{$this->site_url}/api/v1/info_widget.js'></script>
+          <div id='electnext-widgets'><a href='#' id='electnext-test'>Click me</a></div>
+          <script>
+            jQuery(document).ready(function($) {
+              $('#electnext-test').on('click', function(ev) {
+                ev.preventDefault();
+
+                ElectNext.fetch_candidates('$pols_string', function(data) {
+                  if (data.length == 0) {
+                    $('#electnext-widgets').text('Error');
+                  }
+
+                  else {
+                    $('#electnext-widgets').html(data.content);
+                  }
+                });
+              });
+            });
+          </script>
+        ";
+
+        $content .= $new_content;
+      }
+    }
+    return $content;
   }
 
   public function render_exception_message($e) {
