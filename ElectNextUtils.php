@@ -66,10 +66,12 @@ class ElectNextUtils {
   // from http://php.net/manual/en/function.array-map.php#107808
   public function array_map_recursive($fn, $arr) {
     $rarr = array();
-    foreach ($arr as $k => $v) {
-      $rarr[$k] = is_array($v)
-        ? $this->array_map_recursive($fn, $v)
-        : $fn($v);
+    if (is_array($arr)) {
+      foreach ($arr as $k => $v) {
+        $rarr[$k] = is_array($v)
+          ? $this->array_map_recursive($fn, $v)
+          : $fn($v);
+      }      
     }
     return $rarr;
   }
