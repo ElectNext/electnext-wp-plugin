@@ -3,6 +3,7 @@
 class ElectNext {
   private $version = '0.1';
   private $site_url = 'https://electnext.dev';
+  // private $site_url = 'https://electnext.com';
   private $utils;
 
   public function __construct($utils) {
@@ -210,7 +211,7 @@ class ElectNext {
               var script = document.createElement('script');
               script.type = 'text/javascript';
               script.async = true;
-              script.src = 'https://electnext.dev/api/v1/info_widget.js';
+              script.src = '{$this->site_url}/api/v1/info_widget.js';
 
               var entry = document.getElementById('electnext-setup');
               entry.parentNode.insertBefore(script, entry);
