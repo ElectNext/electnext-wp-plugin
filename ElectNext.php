@@ -86,32 +86,32 @@ class ElectNext {
           $(this).parent().remove();
         });
 
-        // search by name and add the results to the list
-        $('#electnext-find-btn').on('click', function(ev) {
-          ev.preventDefault();
+        // search for pols by name
+        $('#electnext-search-name').autocomplete({
+          delay: 500, // recommended for remote data calls
 
-          if ($('#electnext-search-name').val().length == 0) {
-            alert('Please enter the name of a politician.');
-          }
-
-          else {
-            var electnext_search_url = "<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?";
-            var dataToSend = { q: $('#electnext-search-name').val() };
-
-            $.getJSON(electnext_search_url, dataToSend, function(dataReceived) {
-              if (dataReceived.length == 0) {
-                $('#electnext-search em').text('No results found');
-              }
-
-              else {
-                $('#electnext-search em').empty();
-                $.each(dataReceived, function(idx, el) {
-                  if (!$('#electnext-pol-id-' + el.id).length) {
-                    electnext_add_to_list(el);
-                  }
-                });
-              }
+          source: function(req, add) {
+            $.getJSON('<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+              var suggestions = [];
+              $.each(data, function(i, val) {
+                // "suggestions" wants item and label values
+                val.item = val.id;
+                val.label = val.name + (val.title == null ? '' : (' - ' + val.title));
+                suggestions.push(val);
+              });
+              add(suggestions);
             });
+          },
+
+          select: function(ev, ui) {
+            pol = ui.item;
+
+            if (!$('#electnext-pol-id-' + pol.id).length) {
+               electnext_add_to_list(pol);
+            }
+
+            $("#electnext-search-name").val('');
+            ev.preventDefault(); // this prevents the selected value from going back into the input field
           }
         });
 
@@ -134,15 +134,7 @@ class ElectNext {
       });
 
     </script>
-    <div style="float: right; margin-left: 10px;">
-      <p id="electnext-search">
-        <label for="electnext-search-name">Add a politician by name:</label>
-        <br><input type="text" name="electnext-search-name" id="electnext-search-name">
-        <br><a class="button" href="#" id="electnext-find-btn">Find</a> <em></em>
-      </p>
-    </div>
-
-    <div id="electnext-pols">
+    <div id="electnext-pols" style="float: left; margin-right: 10%;">
       <ul>
       <?php
         if (!empty($pols)) {
@@ -159,6 +151,14 @@ class ElectNext {
 
       <p id="electnext-scan"><a class="button" href="#" id="electnext-scan-btn">Scan post</a> <em></em></p>
     </div>
+
+    <div style="float: left;">
+      <p id="electnext-search">
+        <label for="electnext-search-name">Add a politician by name:</label>
+        <br><input type="text" name="electnext-search-name" id="electnext-search-name">
+      </p>
+    </div>
+
     <div class="clear"></div>
 
     <?php
@@ -178,6 +178,7 @@ class ElectNext {
     // but we don't want to assume it always will be in future versions, so enqueue it
     if ($hook == 'post-new.php' || $hook == 'post.php') {
       wp_enqueue_script('jquery-ui-sortable');
+      wp_enqueue_script('jquery-ui-autocomplete');
     }
   }
 
@@ -215,17 +216,19 @@ class ElectNext {
             })();
 
             jQuery(document).ready(function($) {
-              electnext_fetch_candidates();
+              electnext_fetch_widgets();
 
-              function electnext_fetch_candidates() {
+              // @todo: move as much of this as possible to the script on electnext.com
+              // for the timeout, should also set a maximum number of attempts
+              function electnext_fetch_widgets() {
                 if (typeof ElectNext == 'undefined' || ElectNext.ready() != true) {
-                  setTimeout(electnext_fetch_candidates, 1000);
+                  setTimeout(electnext_fetch_widgets, 50);
                   return;
                 }
 
                 ElectNext.fetch_candidates('$pols_string', function(data) {
                   if (data.length == 0) {
-                    $('#electnext-widgets').text('Error');
+                    $('#electnext-widgets').html('<p>Error loading candidate widgets</p>');
                   }
 
                   else {
