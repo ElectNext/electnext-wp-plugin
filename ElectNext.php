@@ -134,6 +134,7 @@ class ElectNext {
       });
 
     </script>
+    <style>li.electnext-pol { cursor: ns-resize; }</style>
     <div id="electnext-pols" style="float: left; margin-right: 10%;">
       <ul>
       <?php
