@@ -91,16 +91,16 @@ class ElectNext {
           delay: 500, // recommended for remote data calls
 
           source: function(req, add) {
-              $.getJSON('<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
-                var suggestions = [];
-                $.each(data, function(i, val) {
-                  // "suggestions" wants item and label values
-                  val.item = val.id;
-                  val.label = val.name;
-                  suggestions.push(val);
-                });
-                add(suggestions);
+            $.getJSON('<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+              var suggestions = [];
+              $.each(data, function(i, val) {
+                // "suggestions" wants item and label values
+                val.item = val.id;
+                val.label = val.name + (val.title == null ? '' : (' - ' + val.title));
+                suggestions.push(val);
               });
+              add(suggestions);
+            });
           },
 
           select: function(ev, ui) {
