@@ -2,8 +2,9 @@
 
 class ElectNext {
   private $version = '0.1';
-  private $site_url = 'https://electnext.dev';
-  // private $site_url = 'https://electnext.com';
+  // private $site_url = 'https://electnext.dev';
+  // private $site_url = 'http://staging.electnext.com';
+  private $site_url = 'https://electnext.com';
   private $utils;
 
   public function __construct($utils) {
