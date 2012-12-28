@@ -2,7 +2,9 @@
 
 class ElectNext {
   private $version = '0.1';
-  private $site_url = 'https://electnext.dev';
+  // private $site_url = 'https://electnext.dev';
+  // private $site_url = 'http://staging.electnext.com';
+  private $site_url = 'https://electnext.com';
   private $utils;
 
   public function __construct($utils) {
@@ -27,7 +29,9 @@ class ElectNext {
   public function run() {
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
-    add_action('admin_enqueue_scripts', array($this, 'add_jquery_ui_sortable'));
+    add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
+    add_action('wp_enqueue_scripts', array($this, 'add_front_end_scripts'));
+    add_filter('the_content', array($this, 'add_info_boxes'));
     return true;
   }
 
@@ -84,32 +88,32 @@ class ElectNext {
           $(this).parent().remove();
         });
 
-        // search by name and add the results to the list
-        $('#electnext-find-btn').on('click', function(ev) {
-          ev.preventDefault();
+        // search for pols by name
+        $('#electnext-search-name').autocomplete({
+          delay: 500, // recommended for remote data calls
 
-          if ($('#electnext-search-name').val().length == 0) {
-            alert('Please enter the name of a politician.');
-          }
-
-          else {
-            var electnext_search_url = "<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?";
-            var dataToSend = { q: $('#electnext-search-name').val() };
-
-            $.getJSON(electnext_search_url, dataToSend, function(dataReceived) {
-              if (dataReceived.length == 0) {
-                $('#electnext-search em').text('No results found');
-              }
-
-              else {
-                $('#electnext-search em').empty();
-                $.each(dataReceived, function(idx, el) {
-                  if (!$('#electnext-pol-id-' + el.id).length) {
-                    electnext_add_to_list(el);
-                  }
-                });
-              }
+          source: function(req, add) {
+            $.getJSON('<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+              var suggestions = [];
+              $.each(data, function(i, val) {
+                // "suggestions" wants item and label values
+                val.item = val.id;
+                val.label = val.name + (val.title == null ? '' : (' - ' + val.title));
+                suggestions.push(val);
+              });
+              add(suggestions);
             });
+          },
+
+          select: function(ev, ui) {
+            pol = ui.item;
+
+            if (!$('#electnext-pol-id-' + pol.id).length) {
+               electnext_add_to_list(pol);
+            }
+
+            $("#electnext-search-name").val('');
+            ev.preventDefault(); // this prevents the selected value from going back into the input field
           }
         });
 
@@ -132,15 +136,8 @@ class ElectNext {
       });
 
     </script>
-    <div style="float: right; margin-left: 10px;">
-      <p id="electnext-search">
-        <label for="electnext-search-name">Add a politician by name:</label>
-        <br><input type="text" name="electnext-search-name" id="electnext-search-name">
-        <br><a class="button" href="#" id="electnext-find-btn">Find</a> <em></em>
-      </p>
-    </div>
-
-    <div id="electnext-pols">
+    <style>li.electnext-pol { cursor: ns-resize; }</style>
+    <div id="electnext-pols" style="float: left; margin-right: 10%;">
       <ul>
       <?php
         if (!empty($pols)) {
@@ -157,6 +154,14 @@ class ElectNext {
 
       <p id="electnext-scan"><a class="button" href="#" id="electnext-scan-btn">Scan post</a> <em></em></p>
     </div>
+
+    <div style="float: left;">
+      <p id="electnext-search">
+        <label for="electnext-search-name">Add a politician by name:</label>
+        <br><input type="text" name="electnext-search-name" id="electnext-search-name">
+      </p>
+    </div>
+
     <div class="clear"></div>
 
     <?php
@@ -171,12 +176,78 @@ class ElectNext {
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
-  public function add_jquery_ui_sortable($hook) {
+  public function add_admin_scripts($hook) {
     // jquery-ui-sortable is automatically included in the post editor in WP 3.5
     // but we don't want to assume it always will be in future versions, so enqueue it
     if ($hook == 'post-new.php' || $hook == 'post.php') {
       wp_enqueue_script('jquery-ui-sortable');
+      wp_enqueue_script('jquery-ui-autocomplete');
     }
+  }
+
+  public function add_front_end_scripts() {
+    wp_enqueue_script('jquery');
+  }
+
+  public function add_info_boxes($content) {
+    global $post;
+    // the is_main_query() check ensures we don't add to sidebars, footers, etc
+    // we could also add an is_single() check if we only want them on single post pages
+    if (is_main_query()) {
+      $pols = get_post_meta($post->ID, 'electnext_pols', true);
+      $pols_string = '';
+
+      if (is_array($pols)) {
+        foreach ($pols as $pol) {
+          $pols_string .= "ids[]={$pol['id']}&";
+        }
+
+        $pols_string = substr($pols_string, 0, -1);
+      }
+
+      if (strlen($pols_string)) {
+        $new_content = "
+          <script data-electnext id='electnext-setup'>
+            (function() {
+              var script = document.createElement('script');
+              script.type = 'text/javascript';
+              script.async = true;
+              script.src = '{$this->site_url}/api/v1/info_widget.js';
+
+              var entry = document.getElementById('electnext-setup');
+              entry.parentNode.insertBefore(script, entry);
+            })();
+
+            jQuery(document).ready(function($) {
+              electnext_fetch_widgets();
+
+              // @todo: move as much of this as possible to the script on electnext.com
+              // for the timeout, should also set a maximum number of attempts
+              function electnext_fetch_widgets() {
+                if (typeof ElectNext == 'undefined' || ElectNext.ready() != true) {
+                  setTimeout(electnext_fetch_widgets, 50);
+                  return;
+                }
+
+                ElectNext.fetch_candidates('$pols_string', function(data) {
+                  if (data.length == 0) {
+                    $('#electnext-widgets').html('<p>Error loading candidate widgets</p>');
+                  }
+
+                  else {
+                    $('#electnext-widgets').html(data.content);
+                  }
+                });
+              }
+            });
+          </script>
+          <div id='electnext-widgets'></div>
+        ";
+
+        $content .= $new_content;
+      }
+    }
+    return $content;
   }
 
   public function render_exception_message($e) {
