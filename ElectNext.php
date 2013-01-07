@@ -192,8 +192,7 @@ class ElectNext {
   public function add_info_boxes($content) {
     global $post;
     // the is_main_query() check ensures we don't add to sidebars, footers, etc
-    // we could also add an is_single() check if we only want them on single post pages
-    if (is_main_query()) {
+    if (is_main_query() && is_single()) {
       $pols = get_post_meta($post->ID, 'electnext_pols', true);
       $pols_string = '';
 
