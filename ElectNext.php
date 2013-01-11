@@ -2,10 +2,22 @@
 
 class ElectNext {
   private $version = '0.1';
-  // private $site_url = 'https://electnext.dev';
-  // private $site_url = 'http://staging.electnext.com';
-  private $site_url = 'https://electnext.com';
+  private $script_url = '/api/v1/info_widget.js';
   private $utils;
+  private $api_key = 'abc123';
+
+  // dev
+  // private $url_prefix = 'https://';
+  // private $site_name = 'electnext.dev';
+
+  // staging
+  // private $url_prefix = 'http://';
+  // private $site_name = 'staging.electnext.com';
+
+  // production: check in with these uncommented!
+  private $url_prefix = 'https://';
+  private $site_name = 'electnext.com';
+
 
   public function __construct($utils) {
     $this->utils = $utils;
@@ -43,7 +55,7 @@ class ElectNext {
     $meta_pols = get_post_meta($post->ID, 'electnext_pols', true);
     $pols = empty($meta_pols) ? array() : $meta_pols;
     wp_nonce_field('electnext_meta_box_nonce', 'electnext_meta_box_nonce');
-    echo "<script async src='{$this->site_url}/api/v1/info_widget.js'></script>\n";
+    echo "<script async src='{$this->url_prefix}{$this->site_name}{$this->script_url}'></script>\n";
     ?>
 
 
@@ -93,7 +105,7 @@ class ElectNext {
           delay: 500, // recommended for remote data calls
 
           source: function(req, add) {
-            $.getJSON('<?php echo $this->site_url; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+            $.getJSON('<?php echo $this->url_prefix . $this->site_name; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
               var suggestions = [];
               $.each(data, function(i, val) {
                 // "suggestions" wants item and label values
@@ -206,22 +218,25 @@ class ElectNext {
 
       if (strlen($pols_string)) {
         $new_content = "
-          <script data-electnext id='electnext-setup'>
-            (function() {
-              var script = document.createElement('script');
-              script.type = 'text/javascript';
-              script.async = true;
-              script.src = '{$this->site_url}/api/v1/info_widget.js';
+          <script data-electnext id='enxt-script' type='text/javascript'>
+            //<![CDATA[
+              var _enxt = _enxt || [];
+              _enxt.push(['set_account', '{$this->api_key}']);
+              (function() {
+                var enxt = document.createElement('script'); enxt.type = 'text/javascript'; enxt.async = true;
+                enxt.src = '//{$this->site_name}{$this->script_url}';
 
-              var entry = document.getElementById('electnext-setup');
-              entry.parentNode.insertBefore(script, entry);
-            })();
+                var k = document.getElementById('enxt-script');
+                k.parentNode.insertBefore(enxt, k);
+              })();
+            //]]>
+          </script>
 
+          <script type='text/javascript'>
             jQuery(document).ready(function($) {
               electnext_fetch_widgets();
 
-              // @todo: move as much of this as possible to the script on electnext.com
-              // for the timeout, should also set a maximum number of attempts
+              // @todo: move this to info_widget.js
               function electnext_fetch_widgets() {
                 if (typeof ElectNext == 'undefined' || ElectNext.ready() != true) {
                   setTimeout(electnext_fetch_widgets, 50);
