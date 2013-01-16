@@ -206,56 +206,27 @@ class ElectNext {
     // the is_main_query() check ensures we don't add to sidebars, footers, etc
     if (is_main_query() && is_single()) {
       $pols = get_post_meta($post->ID, 'electnext_pols', true);
-      $pols_string = '';
 
       if (is_array($pols)) {
+        $pol_ids = array();
         foreach ($pols as $pol) {
-          $pols_string .= "ids[]={$pol['id']}&";
+          $pol_ids[] = $pol['id'];
         }
-
-        $pols_string = substr($pols_string, 0, -1);
-      }
-
-      if (strlen($pols_string)) {
+        $pols_js = json_encode($pol_ids);
         $new_content = "
           <script data-electnext id='enxt-script' type='text/javascript'>
             //<![CDATA[
               var _enxt = _enxt || [];
               _enxt.push(['set_account', '{$this->api_key}']);
+              _enxt.push(['wp_setup_profiles', $pols_js]);
               (function() {
                 var enxt = document.createElement('script'); enxt.type = 'text/javascript'; enxt.async = true;
                 enxt.src = '//{$this->site_name}{$this->script_url}';
-
                 var k = document.getElementById('enxt-script');
                 k.parentNode.insertBefore(enxt, k);
               })();
             //]]>
           </script>
-
-          <script type='text/javascript'>
-            jQuery(document).ready(function($) {
-              electnext_fetch_widgets();
-
-              // @todo: move this to info_widget.js
-              function electnext_fetch_widgets() {
-                if (typeof ElectNext == 'undefined' || ElectNext.ready() != true) {
-                  setTimeout(electnext_fetch_widgets, 50);
-                  return;
-                }
-
-                ElectNext.fetch_candidates('$pols_string', function(data) {
-                  if (data.length == 0) {
-                    $('#electnext-widgets').html('<p>Error loading candidate widgets</p>');
-                  }
-
-                  else {
-                    $('#electnext-widgets').html(data.content);
-                  }
-                });
-              }
-            });
-          </script>
-          <div id='electnext-widgets'></div>
         ";
 
         $content .= $new_content;
