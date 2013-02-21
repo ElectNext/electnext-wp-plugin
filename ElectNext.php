@@ -27,17 +27,6 @@ class ElectNext {
     return $this->version;
   }
 
-  public function install() {
-    try {
-      // installation code here
-      //return $status;
-    }
-
-    catch (Exception $e) {
-      return $this->render_exception_message($e);
-    }
-  }
-
   public function run() {
     add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
@@ -93,15 +82,13 @@ class ElectNext {
         $('.enxt-icon-info').tipsy({
           className: 'enxt-tipsy',
           namespace: 'enxt-',
-          gravity: 'se',
-          html: true
+          gravity: 'se'
         });
 
         $('.enxt-icon-move').tipsy({
           className: 'enxt-tipsy',
           namespace: 'enxt-',
-          gravity: 's',
-          html: true
+          gravity: 's'
         });
 
         function electnext_add_to_list(pol) {
@@ -208,11 +195,11 @@ class ElectNext {
     </script>
     <div class="enxt-group">
       <div class="enxt-header enxt-scan-header">
-        <span>Profiles to display in this article <i class="enxt-icon-info" title="<p>Use the 'Scan post' button to search your content for politicians.</p><p>After scanning, a list of politician profiles to be displayed with your article will appear below.</p>"></i></span>
+        <span>Profiles to display in this article <i class="enxt-icon-info" title="Use the 'Scan post' button to search your content for politicians. After scanning, a list of politician profiles to be displayed with your article will appear below."></i></span>
         <div class="enxt-scan"><a href="#" class="enxt-scan-btn button">Scan Article</a> <em></em></div>
       </div>
       <div class="enxt-header enxt-search-header">
-        <span><label for="enxt-search-name">Add a politician by name</label> <i class="enxt-icon-info" title="<p>Type a politician's name in the box below to manually add a profile.</p>"></i></span>
+        <span><label for="enxt-search-name">Add a politician by name</label> <i class="enxt-icon-info" title="Type a politician's name in the box below to manually add a profile."></i></span>
         <div><input type="text" placeholder="Type a politician's name" name="enxt-search-name" id="enxt-search-name"></div>
       </div>
     </div>
@@ -276,13 +263,5 @@ class ElectNext {
       }
     }
     return $content;
-  }
-
-  public function render_exception_message($e) {
-    return '<p><strong>'
-      . __('ElectNext plugin error', 'electnext')
-      . ':</strong></p><pre>'
-      . $e->getMessage()
-      . '</pre>';
   }
 }
