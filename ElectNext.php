@@ -45,11 +45,11 @@ class ElectNext {
     wp_enqueue_script('jquery-ui-sortable');
     wp_enqueue_script('jquery-ui-autocomplete');
 
-    $css_url = plugins_url('/editor.css', __FILE__);
+    $css_url = plugins_url('electnext-wp-plugin/editor.css');
     wp_register_style('electnext_editor_css', $css_url, false, $this->version);
     wp_enqueue_style('electnext_editor_css');
 
-    $tipsy_url = plugins_url('/jquery.tipsy.js', __FILE__);
+    $tipsy_url = plugins_url('electnext-wp-plugin/jquery.tipsy.js');
     wp_register_script('tipsy', $tipsy_url, array('jquery'));
     wp_enqueue_script('tipsy');
   }
