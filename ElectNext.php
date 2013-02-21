@@ -46,10 +46,8 @@ class ElectNext {
     return true;
   }
 
-  public function add_admin_scripts($hook) {
-    $hooks_to_include = array('post-new.php', 'page-new.php', 'post.php', 'page.php');
-
-    if (!in_array($hook, $hooks_to_include) ) {
+  public function add_admin_scripts($page) {
+    if (!in_array($page, array('post-new.php', 'post.php')) ) {
       return null;
     }
 
@@ -71,14 +69,16 @@ class ElectNext {
     $title = __('Politician Profiles', 'electnext');
     $powered_by = __('powered by', 'electnext');
 
-    add_meta_box(
-      'electnext',
-      "$title <span class='enxt-small'>$powered_by <span class='enxt-red'>Elect</span><span class='enxt-blue'>Next</span></span>",
-      array($this, 'render_meta_box'),
-      'post',
-      'normal',
-      'high'
-    );
+    foreach (array('post', 'page') as $type) {
+      add_meta_box(
+        'electnext',
+        "$title <span class='enxt-small'>$powered_by <span class='enxt-red'>Elect</span><span class='enxt-blue'>Next</span></span>",
+        array($this, 'render_meta_box'),
+        $type,
+        'normal',
+        'high'
+      );
+    }
   }
 
   public function render_meta_box($post) {
