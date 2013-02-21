@@ -27,81 +27,126 @@ class ElectNext {
     return $this->version;
   }
 
-  public function install() {
-    try {
-      // installation code here
-      //return $status;
-    }
-
-    catch (Exception $e) {
-      return $this->render_exception_message($e);
-    }
-  }
-
   public function run() {
+    add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
-    add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
-    add_action('wp_enqueue_scripts', array($this, 'add_front_end_scripts'));
     add_filter('the_content', array($this, 'add_info_boxes'));
     return true;
   }
 
+  public function add_admin_scripts($page) {
+    if (!in_array($page, array('post-new.php', 'post.php')) ) {
+      return null;
+    }
+
+    // jquery-ui-sortable is automatically included in the post editor in WP 3.5
+    // but we don't want to assume it always will be in future versions, so enqueue it
+    wp_enqueue_script('jquery-ui-sortable');
+    wp_enqueue_script('jquery-ui-autocomplete');
+
+    $css_url = plugins_url(null, __FILE__) . '/editor.css';
+    wp_register_style('electnext_editor_css', $css_url, false, $this->version);
+    wp_enqueue_style('electnext_editor_css');
+
+    $tipsy_url = plugins_url(null, __FILE__) . '/jquery.tipsy.js';
+    wp_register_script('tipsy', $tipsy_url, array('jquery'));
+    wp_enqueue_script('tipsy');
+  }
+
   public function init_meta_box() {
-    add_meta_box('electnext', 'ElectNext', array($this, 'render_meta_box'), 'post', 'normal', 'high');
+    $title = __('Politician Profiles', 'electnext');
+    $powered_by = __('powered by', 'electnext');
+
+    foreach (array('post', 'page') as $type) {
+      add_meta_box(
+        'electnext',
+        "$title <span class='enxt-small'>$powered_by <span class='enxt-red'>Elect</span><span class='enxt-blue'>Next</span></span>",
+        array($this, 'render_meta_box'),
+        $type,
+        'normal',
+        'high'
+      );
+    }
   }
 
   public function render_meta_box($post) {
     $meta_pols = get_post_meta($post->ID, 'electnext_pols', true);
     $pols = empty($meta_pols) ? array() : $meta_pols;
     wp_nonce_field('electnext_meta_box_nonce', 'electnext_meta_box_nonce');
-    echo "<script async src='{$this->url_prefix}{$this->site_name}{$this->script_url}'></script>\n";
+    echo "<script async src='{$this->url_prefix}{$this->site_name}{$this->script_url}'></script>";
     ?>
-
 
     <script>
       jQuery(document).ready(function($) {
+        $('.enxt-icon-info').tipsy({
+          className: 'enxt-tipsy',
+          namespace: 'enxt-',
+          gravity: 'se'
+        });
+
+        $('.enxt-icon-move').tipsy({
+          className: 'enxt-tipsy',
+          namespace: 'enxt-',
+          gravity: 's'
+        });
+
         function electnext_add_to_list(pol) {
-          $('#electnext-pols ul').append(
-            '<li class="electnext-pol" id="electnext-pol-id-' + pol.id + '">'
+          $('#enxt-pols ol').append(
+            '<li class="enxt-pol" id="enxt-pol-id-' + pol.id + '" data-pol_id="' + pol.id + '">'
+            + '<i class="enxt-icon-move" title="Change the order of the profiles by dragging"></i>'
             + '<strong>' + pol.name + '</strong>'
             + (pol.title ? (' - <span>' + pol.title + '</span>') : '')
-            + '<i style="display:none;">' + pol.id + '</i>'
-            + ' [ <a href="#" class="electnext-pol-remove">x</a> ]</li>'
+            + '<a href="#" class="enxt-pol-remove"><i class="enxt-icon-remove" title="Remove this profile"></i></a></li>'
           );
         }
+
         // this relies on jquery-ui-sortable being loaded
-        $('#electnext-pols ul').sortable();
+        $('#enxt-pols ol').sortable();
 
         // scan the post content for politician names, and add ones we find to the list
-        $('#electnext-scan-btn').on('click', function(ev) {
+        $('.enxt-scan-btn').on('click', function(ev) {
           ev.preventDefault();
-          var content = tinyMCE.get('content').getContent().replace(/(<([^>]+)>)/ig,"");
+          $('.enxt-scan em').empty();
+
+          // this works for TinyMCE and the HTML editor
+          var content = $('#content').val().replace(/(<([^>]+)>)/ig,"");
           var possibles = ElectNext.scan_string(content);
+
           ElectNext.search_candidates(possibles, function(data) {
             if (data.length == 0) {
-              $('#electnext-scan em').text('No names found');
+              $('.enxt-scan em').text('No politician names found');
             }
 
             else {
-              $('#electnext-scan em').empty();
+              var found_new = 0;
+
               $.each(data, function(idx, el) {
-                if (!$('#electnext-pol-id-' + el.id).length) {
+                if (!$('#enxt-pol-id-' + el.id).length) {
                   electnext_add_to_list(el);
+                  found_new += 1;
                 }
               })
+
+              if (found_new == 0) {
+                $('.enxt-scan em').text('No new politician names found');
+              }
+
+              else {
+                $('.enxt-scan em').text('Found ' + found_new + ' politician name' + (found_new > 1 ? 's' : ''));
+              }
             }
           });
         });
 
         // remove names on demand
-        $('#electnext-pols ul').on('click', '.electnext-pol-remove', function(ev) {
+        $('.enxt-pol-remove').on('click', function(ev) {
           ev.preventDefault();
-          $(this).parent().remove();
+          $(this).parents('.enxt-pol').remove();
         });
 
         // search for pols by name
-        $('#electnext-search-name').autocomplete({
+        $('#enxt-search-name').autocomplete({
           delay: 500, // recommended for remote data calls
 
           source: function(req, add) {
@@ -120,61 +165,59 @@ class ElectNext {
           select: function(ev, ui) {
             pol = ui.item;
 
-            if (!$('#electnext-pol-id-' + pol.id).length) {
+            if (!$('#enxt-pol-id-' + pol.id).length) {
                electnext_add_to_list(pol);
             }
 
-            $("#electnext-search-name").val('');
+            $("#enxt-search-name").val('');
             ev.preventDefault(); // this prevents the selected value from going back into the input field
           }
         });
 
         // save the final set of names when the post is saved
         $('#post').submit(function() {
-          for (var i = 0; i < $('.electnext-pol').length; i++) {
+          for (var i = 0; i < $('.enxt-pol').length; i++) {
             $('#post').append(
               '<input type="hidden"'
                 + ' name="electnext_pols_meta[' + i + '][id]"'
-                + ' value="' + $('.electnext-pol:eq(' + i + ') i').text() + '">'
+                + ' value="' + $('.enxt-pol:eq(' + i + ')').attr('data-pol_id') + '">'
               + '<input type="hidden"'
                 + ' name="electnext_pols_meta[' + i + '][name]"'
-                + ' value="' + $('.electnext-pol:eq(' + i + ') strong').text() + '">'
+                + ' value="' + $('.enxt-pol:eq(' + i + ') strong').text() + '">'
               + '<input type="hidden"'
                 + ' name="electnext_pols_meta[' + i + '][title]"'
-                + ' value="' + $('.electnext-pol:eq(' + i + ') span').text() + '">'
+                + ' value="' + $('.enxt-pol:eq(' + i + ') span').text() + '">'
             );
           }
         });
       });
 
     </script>
-    <style>li.electnext-pol { cursor: ns-resize; }</style>
-    <div id="electnext-pols" style="float: left; margin-right: 10%;">
-      <ul>
-      <?php
+    <div class="enxt-group">
+      <div class="enxt-header enxt-scan-header">
+        <span>Profiles to display in this article <i class="enxt-icon-info" title="Use the 'Scan post' button to search your content for politicians. After scanning, a list of politician profiles to be displayed with your article will appear below."></i></span>
+        <div class="enxt-scan"><a href="#" class="enxt-scan-btn button">Scan Article</a> <em></em></div>
+      </div>
+      <div class="enxt-header enxt-search-header">
+        <span><label for="enxt-search-name">Add a politician by name</label> <i class="enxt-icon-info" title="Type a politician's name in the box below to manually add a profile."></i></span>
+        <div><input type="text" placeholder="Type a politician's name" name="enxt-search-name" id="enxt-search-name"></div>
+      </div>
+    </div>
+    <div id="enxt-pols">
+      <ol>
+        <?php
         if (!empty($pols)) {
           for ($i=0; $i < count($pols); ++$i)  {
-            echo "<li class='electnext-pol' id='electnext-pol-id-{$pols[$i]['id']}'>"
+            echo "<li class='enxt-pol' id='enxt-pol-id-{$pols[$i]['id']}' data-pol_id='{$pols[$i]['id']}'>"
+              . "<i class='enxt-icon-move' title='Change the order of the profiles by dragging'></i>"
               . "<strong>{$pols[$i]['name']}</strong>"
               . (strlen($pols[$i]['title']) ? " - <span>{$pols[$i]['title']}</span>" : "")
-              . "<i style='display:none;'>{$pols[$i]['id']}</i>"
-              . " [ <a href='#' class='electnext-pol-remove'>x</a> ]</li>\n";
+              . "<a href='#' class='enxt-pol-remove'><i class='enxt-icon-remove' title='Remove this profile'></i></a></li>";
           }
         }
-      ?>
-      </ul>
-
-      <p id="electnext-scan"><a class="button" href="#" id="electnext-scan-btn">Scan post</a> <em></em></p>
+        ?>
+      </ol>
     </div>
-
-    <div style="float: left;">
-      <p id="electnext-search">
-        <label for="electnext-search-name">Add a politician by name:</label>
-        <br><input type="text" name="electnext-search-name" id="electnext-search-name">
-      </p>
-    </div>
-
-    <div class="clear"></div>
 
     <?php
   }
@@ -186,19 +229,6 @@ class ElectNext {
 
     $pols = $this->utils->array_map_recursive('sanitize_text_field', $_POST['electnext_pols_meta']);
     update_post_meta($post_id, 'electnext_pols', $pols);
-  }
-
-  public function add_admin_scripts($hook) {
-    // jquery-ui-sortable is automatically included in the post editor in WP 3.5
-    // but we don't want to assume it always will be in future versions, so enqueue it
-    if ($hook == 'post-new.php' || $hook == 'post.php') {
-      wp_enqueue_script('jquery-ui-sortable');
-      wp_enqueue_script('jquery-ui-autocomplete');
-    }
-  }
-
-  public function add_front_end_scripts() {
-    wp_enqueue_script('jquery');
   }
 
   public function add_info_boxes($content) {
@@ -233,13 +263,5 @@ class ElectNext {
       }
     }
     return $content;
-  }
-
-  public function render_exception_message($e) {
-    return '<p><strong>'
-      . __('ElectNext plugin error', 'electnext')
-      . ':</strong></p><pre>'
-      . $e->getMessage()
-      . '</pre>';
   }
 }
