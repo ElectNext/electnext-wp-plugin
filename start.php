@@ -38,16 +38,6 @@ function electnext_activate() {
 
   if (is_string($status)) {
     electnext_cancel_activation($status);
-    return null;
-  }
-
-  $electnext_utils = new ElectNextUtils();
-  $electnext = new ElectNext($electnext_utils);
-  $status = $electnext->install();
-
-  if (is_string($status)) {
-    electnext_cancel_activation($status);
-    return null;
   }
 
   return null;

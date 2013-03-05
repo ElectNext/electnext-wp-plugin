@@ -78,6 +78,10 @@ class ElectNext {
     ?>
 
     <script>
+      // we need to api_key for the search_candidates call
+      var _enxt = _enxt || [];
+      _enxt.push(['set_account', '<?php echo $this->api_key; ?>']);
+
       jQuery(document).ready(function($) {
         $('.enxt-icon-info').tipsy({
           className: 'enxt-tipsy',
