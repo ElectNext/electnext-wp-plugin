@@ -31,8 +31,8 @@ class ElectNext {
     add_settings_field('electnext_api_key', 'ElectNext API Key', array($this, 'display_api_input'), 'electnext', 'electnext_main');
   }
 
-  function display_electnext_main() {
-    echo null; // no need to both displaying a header
+  public function display_electnext_main() {
+    echo null; // no need to bother displaying a header
   }
 
   public function display_api_input() {
