@@ -2,24 +2,20 @@
 /*
 Plugin Name: ElectNext
 Plugin URI: http://www.electnext.com/
-Description: A plugin for automatically displaying "info boxes" at the end of posts about politicians, based on names mentioned in the posts.
+Description: A plugin for automatically displaying "baseball cards" for politicians mentioned in posts.
 Author: ElectNext
 Version: 0.1
 Author URI: http://www.electnext.com
 License: GPLv2 or later
 */
 
-require_once 'ElectNextUtils.php';
 require_once 'ElectNext.php';
 
 add_action('wpmu_new_blog', 'electnext_activate_for_new_network_site');
 register_activation_hook(__FILE__, 'electnext_activate');
-// uncomment if needed
-//register_deactivation_hook(__FILE__, 'electnext_deactivate_for_network_sites');
 load_plugin_textdomain('electnext', false, basename(dirname(__FILE__)) . '/languages/');
 
-$electnext_utils = new ElectNextUtils();
-$electnext = new ElectNext($electnext_utils);
+$electnext = new ElectNext();
 $electnext->run();
 
 function electnext_activate_for_new_network_site($blog_id) {
@@ -52,16 +48,6 @@ function electnext_activation_checks() {
 }
 
 function electnext_cancel_activation($message) {
-  deactivate_plugins(dirname(__FILE__) . '/' . __FILE__);
+  deactivate_plugins(__FILE__);
   wp_die($message);
 }
-
-// uncomment if there's any deactivation steps needed
-//function electnext_deactivate_for_network_sites() {
-//  $utils = new ElectNextUtils();
-//  $utils->call_function_for_network_sites('electnext_deactivate');
-//}
-//
-//function electnext_deactivate() {
-//
-//}

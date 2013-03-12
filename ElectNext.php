@@ -3,24 +3,13 @@
 class ElectNext {
   private $version = '0.1';
   private $script_url = '/api/v1/info_widget.js';
-  private $utils;
-  private $api_key = 'abc123';
-
-  // dev
-  // private $url_prefix = 'https://';
-  // private $site_name = 'electnext.dev';
-
-  // staging
-  // private $url_prefix = 'http://';
-  // private $site_name = 'staging.electnext.com';
-
-  // production: check in with these uncommented!
+  private $api_key;
   private $url_prefix = 'https://';
   private $site_name = 'electnext.com';
 
-
-  public function __construct($utils) {
-    $this->utils = $utils;
+  public function __construct() {
+    $settings = get_option('electnext_settings');
+    $this->api_key = $settings['api_key'];
   }
 
   public function getVersion() {
@@ -28,11 +17,47 @@ class ElectNext {
   }
 
   public function run() {
+    add_action('admin_init', array($this, 'init_settings'));
+    add_action('admin_menu', array($this, 'add_settings_page'));
     add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
     add_filter('the_content', array($this, 'add_info_boxes'));
-    return true;
+  }
+
+  public function init_settings() {
+    register_setting('electnext_settings', 'electnext_settings');
+    add_settings_section('electnext_main', null, array($this, 'display_electnext_main'), 'electnext');
+    add_settings_field('electnext_api_key', 'ElectNext API Key', array($this, 'display_api_input'), 'electnext', 'electnext_main');
+  }
+
+  public function display_electnext_main() {
+    echo null; // no need to bother displaying a header
+  }
+
+  public function display_api_input() {
+    echo "<input id='electnext_api_key' name='electnext_settings[api_key]' type='text' value='{$this->api_key}' size='40'>";
+  }
+
+  public function add_settings_page() {
+    add_options_page('ElectNext', 'ElectNext', 'manage_options', 'electnext', array($this, 'display_settings_page'));
+  }
+
+  public function display_settings_page() {
+    ?>
+    <div class="wrap">
+      <?php screen_icon(); ?>
+      <h2>ElectNext</h2>
+
+      <form action="options.php" method="post">
+        <?php settings_fields('electnext_settings'); ?>
+        <?php do_settings_sections('electnext'); ?>
+        <p class="submit">
+          <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" class="button button-primary" />
+        </p>
+      </form>
+    </div>
+    <?php
   }
 
   public function add_admin_scripts($page) {
@@ -231,7 +256,7 @@ class ElectNext {
     if (!isset( $_POST['electnext_meta_box_nonce']) || !wp_verify_nonce($_POST['electnext_meta_box_nonce'], 'electnext_meta_box_nonce')) return;
     if (!current_user_can('edit_post')) return;
 
-    $pols = $this->utils->array_map_recursive('sanitize_text_field', $_POST['electnext_pols_meta']);
+    $pols = $this->array_map_recursive('sanitize_text_field', $_POST['electnext_pols_meta']);
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
@@ -267,5 +292,18 @@ class ElectNext {
       }
     }
     return $content;
+  }
+
+  // from http://php.net/manual/en/function.array-map.php#107808
+  private function array_map_recursive($fn, $arr) {
+    $rarr = array();
+    if (is_array($arr)) {
+      foreach ($arr as $k => $v) {
+        $rarr[$k] = is_array($v)
+          ? $this->array_map_recursive($fn, $v)
+          : $fn($v);
+      }
+    }
+    return $rarr;
   }
 }
