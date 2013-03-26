@@ -1,7 +1,7 @@
 <?php
 
 class ElectNext {
-  private $version = '0.1';
+  private $version = '1.0';
   private $script_url = '/api/v1/info_widget.js';
   private $api_key;
   private $url_prefix = 'https://';
@@ -28,7 +28,7 @@ class ElectNext {
   public function init_settings() {
     register_setting('electnext_settings', 'electnext_settings');
     add_settings_section('electnext_main', null, array($this, 'display_electnext_main'), 'electnext');
-    add_settings_field('electnext_api_key', 'ElectNext API Key', array($this, 'display_api_input'), 'electnext', 'electnext_main');
+    add_settings_field('electnext_api_key', __('ElectNext API Key', 'electnext'), array($this, 'display_api_input'), 'electnext', 'electnext_main');
   }
 
   public function display_electnext_main() {
@@ -40,7 +40,7 @@ class ElectNext {
   }
 
   public function add_settings_page() {
-    add_options_page('ElectNext', 'ElectNext', 'manage_options', 'electnext', array($this, 'display_settings_page'));
+    add_options_page(__('ElectNext', 'electnext'), __('ElectNext', 'electnext'), 'manage_options', 'electnext', array($this, 'display_settings_page'));
   }
 
   public function display_settings_page() {
@@ -53,7 +53,7 @@ class ElectNext {
         <?php settings_fields('electnext_settings'); ?>
         <?php do_settings_sections('electnext'); ?>
         <p class="submit">
-          <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes'); ?>" class="button button-primary" />
+          <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes', 'electnext'); ?>" class="button button-primary" />
         </p>
       </form>
     </div>
@@ -80,7 +80,7 @@ class ElectNext {
   }
 
   public function init_meta_box() {
-    $title = __('Politician Profiles', 'electnext');
+    $title = __('Political Profiler', 'electnext');
     $powered_by = __('powered by', 'electnext');
 
     foreach (array('post', 'page') as $type) {
@@ -123,10 +123,10 @@ class ElectNext {
         function electnext_add_to_list(pol) {
           $('#enxt-pols ol').append(
             '<li class="enxt-pol" id="enxt-pol-id-' + pol.id + '" data-pol_id="' + pol.id + '">'
-            + '<i class="enxt-icon-move" title="Change the order of the profiles by dragging"></i>'
+            + '<i class="enxt-icon-move" title="<?php esc_attr_e('Change the order of the profiles by dragging', 'electnext'); ?>"></i>'
             + '<strong>' + pol.name + '</strong>'
             + (pol.title ? (' - <span>' + pol.title + '</span>') : '')
-            + '<a href="#" class="enxt-pol-remove"><i class="enxt-icon-remove" title="Remove this profile"></i></a></li>'
+            + '<a href="#" class="enxt-pol-remove"><i class="enxt-icon-remove" title="<?php esc_attr_e('Remove this profile', 'electnext'); ?>"></i></a></li>'
           );
         }
 
@@ -144,7 +144,7 @@ class ElectNext {
 
           ElectNext.search_candidates(possibles, function(data) {
             if (data.length == 0) {
-              $('.enxt-scan em').text('No politician names found');
+              $('.enxt-scan em').text('<?php esc_attr_e('No politician names found', 'electnext') ?>');
             }
 
             else {
@@ -158,11 +158,11 @@ class ElectNext {
               })
 
               if (found_new == 0) {
-                $('.enxt-scan em').text('No new politician names found');
+                $('.enxt-scan em').text('<?php esc_attr_e('No new politician names found', 'electnext') ?>');
               }
 
               else {
-                $('.enxt-scan em').text('Found ' + found_new + ' politician name' + (found_new > 1 ? 's' : ''));
+                $('.enxt-scan em').text('<?php esc_attr_e('Found', 'electnext') ?> ' + found_new + ' <?php esc_attr_e('politician name', 'electnext') ?>' + (found_new > 1 ? '<?php esc_attr_e('s', 'electnext') ?>' : ''));
               }
             }
           });
@@ -224,12 +224,12 @@ class ElectNext {
     </script>
     <div class="enxt-group">
       <div class="enxt-header enxt-scan-header">
-        <span>Profiles to display in this article <i class="enxt-icon-info" title="Use the 'Scan post' button to search your content for politicians. After scanning, a list of politician profiles to be displayed with your article will appear below."></i></span>
+        <span><?php _e('Profiles to display in this article', 'electnext') ?> <i class="enxt-icon-info" title="<?php esc_attr_e('Use the "Scan post" button to search your content for politicians. After scanning, a list of politician profiles to be displayed with your article will appear below.', 'electnext') ?>"></i></span>
         <div class="enxt-scan"><a href="#" class="enxt-scan-btn button">Scan Article</a> <em></em></div>
       </div>
       <div class="enxt-header enxt-search-header">
-        <span><label for="enxt-search-name">Add a politician by name</label> <i class="enxt-icon-info" title="Type a politician's name in the box below to manually add a profile."></i></span>
-        <div><input type="text" placeholder="Type a politician's name" name="enxt-search-name" id="enxt-search-name"></div>
+        <span><label for="enxt-search-name"><?php _e('Add a politician by name', 'electnext') ?></label> <i class="enxt-icon-info" title="<?php esc_attr_e('Type a politician\'s name in the box below to manually add a profile.', 'electnext') ?>"></i></span>
+        <div><input type="text" placeholder="<?php esc_attr_e('Type a politician\'s name', 'electnext') ?>" name="enxt-search-name" id="enxt-search-name"></div>
       </div>
     </div>
     <div id="enxt-pols">
@@ -238,10 +238,14 @@ class ElectNext {
         if (!empty($pols)) {
           for ($i=0; $i < count($pols); ++$i)  {
             echo "<li class='enxt-pol' id='enxt-pol-id-{$pols[$i]['id']}' data-pol_id='{$pols[$i]['id']}'>"
-              . "<i class='enxt-icon-move' title='Change the order of the profiles by dragging'></i>"
+              . "<i class='enxt-icon-move' title='"
+              . esc_attr(__('Change the order of the profiles by dragging', 'electnext'))
+              . "'></i>"
               . "<strong>{$pols[$i]['name']}</strong>"
               . (strlen($pols[$i]['title']) ? " - <span>{$pols[$i]['title']}</span>" : "")
-              . "<a href='#' class='enxt-pol-remove'><i class='enxt-icon-remove' title='Remove this profile'></i></a></li>";
+              . "<a href='#' class='enxt-pol-remove'><i class='enxt-icon-remove' title='"
+              . esc_attr(__('Remove this profile', 'electnext'))
+              . "'></i></a></li>";
           }
         }
         ?>
