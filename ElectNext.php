@@ -162,7 +162,14 @@ class ElectNext {
               }
 
               else {
-                $('.enxt-scan em').text('<?php esc_attr_e('Found', 'electnext') ?> ' + found_new + ' <?php esc_attr_e('politician name', 'electnext') ?>' + (found_new > 1 ? '<?php esc_attr_e('s', 'electnext') ?>' : ''));
+                $('.enxt-scan em').text(
+                  '<?php esc_attr_e('Found', 'electnext') ?> '
+                  + found_new
+                  + ' '
+                  + (found_new > 1
+                    ? '<?php esc_attr_e('politician names', 'electnext') ?>'
+                    : '<?php esc_attr_e('politician name', 'electnext') ?>')
+                );
               }
             }
           });
