@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: ElectNext
+Plugin Name: Political Profiler by ElectNext
 Plugin URI: http://www.electnext.com/
 Description: A plugin for automatically displaying "baseball cards" for politicians mentioned in posts.
 Author: ElectNext
-Version: 0.1
+Version: 1.0
 Author URI: http://www.electnext.com
 License: GPLv2 or later
 */
