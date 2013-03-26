@@ -1,4 +1,4 @@
-=== ElectNext ===
+=== Political Profiler by ElectNext ===
 Contributors: toppa
 Donate link: http://www.electnext.com/
 Tags: post, posts, politics, politicians
