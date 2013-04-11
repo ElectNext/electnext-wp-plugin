@@ -7,7 +7,7 @@ Tested up to: 3.5.1
 Stable tag: 1.0
 License: GPLv2 or later
 
-A plugin for automatically displaying profiles for U.S. politicians mentioned in your posts. [REVISE THIS SENTENCE AS NEEDED, BUT IT NEEDS TO BE SHORT]
+A plugin for automatically displaying profiles for U.S. politicians mentioned in your posts. [REVISE THIS SENTENCE AS NEEDED, BUT IT NEEDS TO BE NO MORE THAN 150 CHARACTERS]
 
 == Description ==
 
