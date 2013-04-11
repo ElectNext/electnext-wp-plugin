@@ -3,13 +3,18 @@
 class ElectNext {
   private $version = '1.0';
   private $script_url = '/api/v1/info_widget.js';
-  private $api_key;
   private $url_prefix = 'https://';
   private $site_name = 'electnext.com';
+  private $editor_pages = array('post-new.php', 'page-new.php', 'post.php', 'page.php');
+  private $api_key;
+  private $short_title;
+  private $title;
 
   public function __construct() {
     $settings = get_option('electnext_settings');
     $this->api_key = $settings['api_key'];
+    $this->short_title = __('Political Profiler', 'electnext');
+    $this->title = __('Political Profiler by ElectNext', 'electnext');
   }
 
   public function getVersion() {
@@ -17,22 +22,43 @@ class ElectNext {
   }
 
   public function run() {
+    add_action('admin_head', array($this, 'display_missing_api_key_warning'));
     add_action('admin_init', array($this, 'init_settings'));
     add_action('admin_menu', array($this, 'add_settings_page'));
     add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
-    add_filter('the_content', array($this, 'add_info_boxes'));
+    add_filter('the_content', array($this, 'add_politician_profiles'));
+  }
+
+  public function display_missing_api_key_warning() {
+    $pages_for_message = $this->editor_pages;
+    $pages_for_message[] = 'plugins.php';
+
+    if (in_array(basename($_SERVER['SCRIPT_NAME']), $pages_for_message) && !$this->api_key) {
+      echo '<div class="error"><p>';
+      _e('Please go to the', 'electnext');
+      $link_text = $this->short_title . ' ' . __('settings page', 'electnext');
+      echo " <a href='options-general.php?page=electnext'>$link_text</a> ";
+      _e('to enter you API key.', 'electnext');
+      echo '</p></div>';
+    }
   }
 
   public function init_settings() {
     register_setting('electnext_settings', 'electnext_settings');
     add_settings_section('electnext_main', null, array($this, 'display_electnext_main'), 'electnext');
-    add_settings_field('electnext_api_key', __('ElectNext API Key', 'electnext'), array($this, 'display_api_input'), 'electnext', 'electnext_main');
+    add_settings_field(
+      'electnext_api_key',
+      __('ElectNext API Key', 'electnext'),
+      array($this, 'display_api_input'),
+      'electnext',
+      'electnext_main'
+    );
   }
 
   public function display_electnext_main() {
-    echo null; // no need to bother displaying a header
+    echo null; // no need to bother displaying a header since there's just one section
   }
 
   public function display_api_input() {
@@ -40,14 +66,20 @@ class ElectNext {
   }
 
   public function add_settings_page() {
-    add_options_page(__('ElectNext', 'electnext'), __('ElectNext', 'electnext'), 'manage_options', 'electnext', array($this, 'display_settings_page'));
+    add_options_page(
+      $this->short_title,
+      $this->short_title,
+      'manage_options',
+      'electnext',
+      array($this, 'display_settings_page')
+    );
   }
 
   public function display_settings_page() {
     ?>
     <div class="wrap">
       <?php screen_icon(); ?>
-      <h2>ElectNext</h2>
+      <h2><?php echo $this->title; ?></h2>
 
       <form action="options.php" method="post">
         <?php settings_fields('electnext_settings'); ?>
@@ -55,13 +87,15 @@ class ElectNext {
         <p class="submit">
           <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes', 'electnext'); ?>" class="button button-primary" />
         </p>
+
+        <p>[More information here about how to get an API key]</p>
       </form>
     </div>
     <?php
   }
 
   public function add_admin_scripts($page) {
-    if (!in_array($page, array('post-new.php', 'post.php')) ) {
+    if (!in_array($page, $this->editor_pages) ) {
       return null;
     }
 
@@ -70,23 +104,24 @@ class ElectNext {
     wp_enqueue_script('jquery-ui-sortable');
     wp_enqueue_script('jquery-ui-autocomplete');
 
-    $css_url = plugins_url('electnext-wp-plugin/editor.css');
-    wp_register_style('electnext_editor_css', $css_url, false, $this->version);
-    wp_enqueue_style('electnext_editor_css');
+    $css_url = plugins_url(basename(dirname(__FILE__)) .'/editor.css');
+    wp_register_style('enxt-editor', $css_url, false, $this->version);
+    wp_enqueue_style('enxt-editor');
 
-    $tipsy_url = plugins_url('electnext-wp-plugin/jquery.tipsy.js');
-    wp_register_script('tipsy', $tipsy_url, array('jquery'));
-    wp_enqueue_script('tipsy');
+    $tipsy_url = plugins_url(basename(dirname(__FILE__)) . '/jquery.tipsy.js');
+    wp_register_script('enxt-tipsy', $tipsy_url, array('jquery'), $this->version);
+    wp_enqueue_script('enxt-tipsy');
   }
 
   public function init_meta_box() {
-    $title = __('Political Profiler', 'electnext');
     $powered_by = __('powered by', 'electnext');
+    $elect = __('Elect', 'electnext');
+    $next = __('Next', 'electnext');
 
     foreach (array('post', 'page') as $type) {
       add_meta_box(
         'electnext',
-        "$title <span class='enxt-small'>$powered_by <span class='enxt-red'>Elect</span><span class='enxt-blue'>Next</span></span>",
+        "{$this->short_title} <span class='enxt-small'>$powered_by <span class='enxt-red'>$elect</span><span class='enxt-blue'>$next</span></span>",
         array($this, 'render_meta_box'),
         $type,
         'normal',
@@ -103,7 +138,6 @@ class ElectNext {
     ?>
 
     <script>
-      // we need to api_key for the search_candidates call
       var _enxt = _enxt || [];
       _enxt.push(['set_account', '<?php echo $this->api_key; ?>']);
 
@@ -175,8 +209,9 @@ class ElectNext {
           });
         });
 
-        // remove names on demand
-        $('.enxt-pol-remove').on('click', function(ev) {
+        // remove names on demand (attach to #enxt-pols so this works
+        // for any politicians added after the initial page load)
+        $('#enxt-pols').on('click', '.enxt-pol-remove', function(ev) {
           ev.preventDefault();
           $(this).parents('.enxt-pol').remove();
         });
@@ -271,7 +306,7 @@ class ElectNext {
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
-  public function add_info_boxes($content) {
+  public function add_politician_profiles($content) {
     global $post;
     // the is_main_query() check ensures we don't add to sidebars, footers, etc
     if (is_main_query() && is_single()) {

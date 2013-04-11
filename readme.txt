@@ -7,38 +7,40 @@ Tested up to: 3.5.1
 Stable tag: 1.0
 License: GPLv2 or later
 
-A plugin for automatically displaying informational "baseball cards" for U.S. politicians mentioned in your posts.
-
-WE CAN INCLUDE A BANNER IMAGE ON THE PLUGIN PAGE (DON'T SPEND TIME ON IT UNTIL AFTER WE'RE APPROVED)
+A plugin for automatically displaying profiles for U.S. politicians mentioned in your posts. [REVISE THIS SENTENCE AS NEEDED, BUT IT NEEDS TO BE NO MORE THAN 150 CHARACTERS]
 
 == Description ==
 
-ADD A DESCRIPTION, AND IF THE PLUGIN IS APPROVED FOR THE REPOSITORY, WE SHOULD MAKE A SCREENCAST, WHICH WE CAN EMBED FROM YOUTUBE
+ADD A FEW PARAGRAPHS ABOUT:
+ HOW OUR POLITICAN PROFILES ENHANCE A WP POLITICAL BLOG,
+ HOW TO GET AN API KEY,
+ AND HIGHLIGHT THAT THE POLITICIAN PROFILES APPEAR ON SINGLE POST VIEWS ONLY
 
 **Get Help**
 
-Enter a post in [the wordpress.org support forum for the ElectNext WordPress plugin](http://wordpress.org/support/plugin/electnext), and we'll respond there.
+Enter a post in [the wordpress.org support forum for the ElectNext WordPress plugin](http://wordpress.org/support/plugin/political-profiler-by-electnext), and we'll respond there.
 
 **Give Help**
 
-* Provide a language translation - [here's how](http://weblogtoolscollection.com/archives/2007/08/27/localizing-a-wordpress-plugin-using-poedit/)
-* Fork [the ElectNext WordPress plugin repository on github](https://github.com/electnet/electnext-wp-plugin) and make a code contribution
-* If you're savvy user of the plugin, [answer questions in the support forum](http://wordpress.org/support/plugin/electnext)
+* Provide a language translation - [here's how](http://weblogtoolscollection.com/archives/2007/08/27/localizing-a-wordpress-plugin-using-poedit/) or use the [online PO Editor](https://poeditor.com/)
+* Fork [the ElectNext WordPress plugin repository on github](https://github.com/electnext/electnext-wp-plugin) and make a code contribution
+* If you're savvy user of the plugin, [answer questions in the support forum](http://wordpress.org/support/plugin/political-profiler-by-electnext)
 
 == Installation ==
 
 Upload to your plugin folder just like any other plugin, and activate.
 
-ADD INSTRUCTIONS FOR GETTING AN API KEY
+REPEAT THE INSTRUCTIONS FOR GETTING AN API KEY
 
 == Frequently Asked Questions ==
 
-PUT ANY ADDITIONAL INSTRUCTIONS HERE (OR WE CAN LINK TO A PAGE ON OUR SITE)
+WE CAN LEAVE THIS PART OUT, OR PUT ANY ADDITIONAL INSTRUCTIONS HERE (OR WE CAN LINK TO A PAGE ON OUR SITE)
 
 == Screenshots ==
 
-1. The ElectNext politician baseball cards
-2. The meta box for adding politician baseball cards to a post
+1. An ElectNext politician profile
+2. Another ElectNext politician profile
+3. Using the Political Profiler when writing your posts
 
 == Changelog ==
 
