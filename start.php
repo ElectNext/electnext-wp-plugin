@@ -2,7 +2,7 @@
 /*
 Plugin Name: Political Profiler by ElectNext
 Plugin URI: http://www.electnext.com/
-Description: A plugin for automatically displaying "baseball cards" for politicians mentioned in posts.
+Description: A plugin for automatically displaying profiles for U.S. politicians mentioned in posts.
 Author: ElectNext
 Version: 1.0
 Author URI: http://www.electnext.com
@@ -41,7 +41,7 @@ function electnext_activate() {
 
 function electnext_activation_checks() {
   if (version_compare(get_bloginfo('version'), '3.0', '<')) {
-    return __('ElectNext plugin not activated. You must have at least WordPress 3.0 to use it.', 'electnext');
+    return __('Political Profiler plugin not activated. You must have at least WordPress 3.0 to use it.', 'electnext');
   }
 
   return true;
