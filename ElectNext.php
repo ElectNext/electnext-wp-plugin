@@ -28,7 +28,7 @@ class ElectNext {
     add_action('admin_enqueue_scripts', array($this, 'add_admin_scripts'));
     add_action('add_meta_boxes', array($this, 'init_meta_box'));
     add_action('save_post', array($this, 'save_meta_box_data'));
-    add_filter('the_content', array($this, 'add_info_boxes'));
+    add_filter('the_content', array($this, 'add_politician_profiles'));
   }
 
   public function display_missing_api_key_warning() {
@@ -58,7 +58,7 @@ class ElectNext {
   }
 
   public function display_electnext_main() {
-    echo null; // no need to bother displaying a header since there's just once section
+    echo null; // no need to bother displaying a header since there's just one section
   }
 
   public function display_api_input() {
@@ -306,7 +306,7 @@ class ElectNext {
     update_post_meta($post_id, 'electnext_pols', $pols);
   }
 
-  public function add_info_boxes($content) {
+  public function add_politician_profiles($content) {
     global $post;
     // the is_main_query() check ensures we don't add to sidebars, footers, etc
     if (is_main_query() && is_single()) {
