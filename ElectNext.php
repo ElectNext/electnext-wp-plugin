@@ -2,7 +2,7 @@
 
 class ElectNext {
   private $version = '1.0';
-  private $script_url = '/api/v1/info_widget.js';
+  private $script_url = '/api/v1/enxt.js';
   private $url_prefix = 'https://';
   private $site_name = 'electnext.com';
   private $editor_pages = array('post-new.php', 'page-new.php', 'post.php', 'page.php');
@@ -221,7 +221,7 @@ class ElectNext {
           delay: 500, // recommended for remote data calls
 
           source: function(req, add) {
-            $.getJSON('<?php echo $this->url_prefix . $this->site_name; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+            $.getJSON('<?php echo $this->url_prefix . $this->site_name; ?>/api/v1/s.js?callback=?', { q: req.term }, function(data) {
               var suggestions = [];
               $.each(data, function(i, val) {
                 // "suggestions" wants item and label values
