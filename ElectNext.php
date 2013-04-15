@@ -4,7 +4,7 @@ class ElectNext {
   private $version = '1.0';
   private $script_url = '/api/v1/info_widget.js';
   private $url_prefix = 'https://';
-  private $site_name = 'electnext.com';
+  private $site_name = 'electnext.dev';
   private $editor_pages = array('post-new.php', 'page-new.php', 'post.php', 'page.php');
   private $api_key;
   private $short_title;
