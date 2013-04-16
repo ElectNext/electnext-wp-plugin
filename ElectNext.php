@@ -2,9 +2,10 @@
 
 class ElectNext {
   private $version = '1.0';
-  private $script_url = '/api/v1/info_widget.js';
+  private $script_url = '/api/v1/enxt.js';
   private $url_prefix = 'https://';
   private $site_name = 'electnext.com';
+  private $email_contact = 'apikey@electnext.com';
   private $editor_pages = array('post-new.php', 'page-new.php', 'post.php', 'page.php');
   private $api_key;
   private $short_title;
@@ -88,7 +89,13 @@ class ElectNext {
           <input name="Submit" type="submit" value="<?php esc_attr_e('Save Changes', 'electnext'); ?>" class="button button-primary" />
         </p>
 
-        <p>[More information here about how to get an API key]</p>
+        <p><?php
+          _e('To request an API key, please', 'electnext');
+          echo " <a href='mailto:{$this->email_contact}?subject=WordPress%20plugin%20API%20key%20request'>";
+          _e('send an email to our WordPress partnerships director');
+          echo '</a>. ';
+          _e('There is no fee and we do not display ads.', 'shashin');
+         ?></p>
       </form>
     </div>
     <?php
@@ -221,7 +228,7 @@ class ElectNext {
           delay: 500, // recommended for remote data calls
 
           source: function(req, add) {
-            $.getJSON('<?php echo $this->url_prefix . $this->site_name; ?>/api/v1/name_search.js?callback=?', { q: req.term }, function(data) {
+            $.getJSON('<?php echo $this->url_prefix . $this->site_name; ?>/api/v1/s.js?callback=?', { q: req.term }, function(data) {
               var suggestions = [];
               $.each(data, function(i, val) {
                 // "suggestions" wants item and label values
