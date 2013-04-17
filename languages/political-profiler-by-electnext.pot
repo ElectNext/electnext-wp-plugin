@@ -1,0 +1,123 @@
+# Copyright (C) 2013 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version:  \n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/political-profiler-by-"
+"electnext\n"
+"POT-Creation-Date: 2013-04-17 13:53:55+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: ElectNext.php:17
+msgid "Political Profiler"
+msgstr ""
+
+#: ElectNext.php:18
+msgid "Political Profiler by ElectNext"
+msgstr ""
+
+#: ElectNext.php:41
+msgid "Please go to the"
+msgstr ""
+
+#: ElectNext.php:42
+msgid "settings page"
+msgstr ""
+
+#: ElectNext.php:44
+msgid "to enter you API key."
+msgstr ""
+
+#: ElectNext.php:54
+msgid "ElectNext API Key"
+msgstr ""
+
+#: ElectNext.php:89
+msgid "Save Changes"
+msgstr ""
+
+#: ElectNext.php:93
+msgid "To request an API key, please"
+msgstr ""
+
+#: ElectNext.php:95
+msgid "send an email to our WordPress partnerships director"
+msgstr ""
+
+#: ElectNext.php:97
+msgid "There is no fee and we do not display ads."
+msgstr ""
+
+#: ElectNext.php:124
+msgid "powered by"
+msgstr ""
+
+#: ElectNext.php:125
+msgid "Elect"
+msgstr ""
+
+#: ElectNext.php:126
+msgid "Next"
+msgstr ""
+
+#: ElectNext.php:167 ElectNext.php:291
+msgid "Change the order of the profiles by dragging"
+msgstr ""
+
+#: ElectNext.php:170 ElectNext.php:296
+msgid "Remove this profile"
+msgstr ""
+
+#: ElectNext.php:188
+msgid "No politician names found"
+msgstr ""
+
+#: ElectNext.php:202
+msgid "No new politician names found"
+msgstr ""
+
+#: ElectNext.php:207
+msgid "Found"
+msgstr ""
+
+#: ElectNext.php:211
+msgid "politician names"
+msgstr ""
+
+#: ElectNext.php:212
+msgid "politician name"
+msgstr ""
+
+#: ElectNext.php:276
+msgid "Profiles to display in this article"
+msgstr ""
+
+#: ElectNext.php:276
+msgid ""
+"Use the \"Scan post\" button to search your content for politicians. After "
+"scanning, a list of politician profiles to be displayed with your article "
+"will appear below."
+msgstr ""
+
+#: ElectNext.php:280
+msgid "Add a politician by name"
+msgstr ""
+
+#: ElectNext.php:280
+msgid "Type a politician's name in the box below to manually add a profile."
+msgstr ""
+
+#: ElectNext.php:281
+msgid "Type a politician's name"
+msgstr ""
+
+#: start.php:44
+msgid ""
+"Political Profiler plugin not activated. You must have at least WordPress "
+"3.0 to use it."
+msgstr ""
