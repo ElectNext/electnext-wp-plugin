@@ -93,8 +93,8 @@ class ElectNext {
           _e('To request an API key, please', 'electnext');
           echo " <a href='mailto:{$this->email_contact}?subject=WordPress%20plugin%20API%20key%20request'>";
           _e('send an email to our WordPress partnerships director');
-          echo '</a>. ';
-          _e('There is no fee and we do not display ads.', 'shashin');
+          echo '</a>, ';
+          _e('and let us know your site\'s domain name. There is no fee and we do not display ads.', 'shashin');
          ?></p>
       </form>
     </div>

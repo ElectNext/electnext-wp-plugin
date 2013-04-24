@@ -17,7 +17,7 @@ Add comprehensive, data-driven, non-partisan profiles on any U.S. politicians to
 
 The ElectNext Political Profiler is currently being used by some of the top news publishers in the country, including [The PBS NewsHour](http://www.pbs.org/newshour/), [Hearst](http://www.hearst.com/index2.php), and [The Philadelphia Inquirer](http://www.philly.com/).
 
-After downloading the Political Profiler plugin, [email our WordPress partnerships director](mailto:apikey@electnext.com?subject=WordPress%20plugin%20API%20key%20request) to receive an API key which will give you access to our data. There is no fee and we do not display ads.
+After downloading the Political Profiler plugin, send an [email to our WordPress partnerships director](mailto:apikey@electnext.com?subject=WordPress%20plugin%20API%20key%20request) and let us know your site's domain name. Then we'll send you an API key which will give you access to our data. There is no fee and we do not display ads.
 
 Then, you're ready to go!
 
