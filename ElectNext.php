@@ -325,11 +325,13 @@ class ElectNext {
           $pol_ids[] = $pol['id'];
         }
         $pols_js = json_encode($pol_ids);
+        $permalink = get_permalink($post);
         $new_content = "
           <script data-electnext id='enxt-script' type='text/javascript'>
             //<![CDATA[
               var _enxt = _enxt || [];
               _enxt.push(['set_account', '{$this->api_key}']);
+              _enxt.push(['set_article', '$permalink']);
               _enxt.push(['wp_setup_profiles', $pols_js]);
               (function() {
                 var enxt = document.createElement('script'); enxt.type = 'text/javascript'; enxt.async = true;
