@@ -1,7 +1,7 @@
 <?php
 
 class ElectNext {
-  private $version = '1.0';
+  private $version = '1.1';
   private $script_url = '/api/v1/enxt.js';
   private $url_prefix = 'https://';
   private $site_name = 'electnext.com';
@@ -330,6 +330,7 @@ class ElectNext {
             //<![CDATA[
               var _enxt = _enxt || [];
               _enxt.push(['set_account', '{$this->api_key}']);
+              _enxt.push(['set_article', '$post->ID']);
               _enxt.push(['wp_setup_profiles', $pols_js]);
               (function() {
                 var enxt = document.createElement('script'); enxt.type = 'text/javascript'; enxt.async = true;

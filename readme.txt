@@ -2,9 +2,9 @@
 Contributors: electnext, toppa
 Donate link: http://www.electnext.com/
 Tags: posts, politics, politicians, political, congress, president, elections, legislators, representatives, senators
-Requires at least: 3.0
+Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 
 Automatically add data-rich, non-partisan profiles of U.S. politicians mentioned in your posts.
@@ -44,4 +44,5 @@ Upload to your plugin folder just like any other plugin, and activate. Then [ema
 
 == Changelog ==
 
+= 1.1 = Add set_article call to JS initializer
 = 1.0 = First version
